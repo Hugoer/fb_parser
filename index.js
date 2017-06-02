@@ -3,8 +3,11 @@
 	var moment = require('moment');
 	var
 		config = require('./config.json'),
+		gKeys = require('./googleApi.json'),
 		firebaseConfig = require('./firebaseConfig.json'),
 		fa = require('./modules/filmaffinity.js')(config);
+
+	var giSearch = require('./modules/download.js')(gKeys.id, gKeys.apiKey);
 
 	function fnIsLogged() {
 
@@ -24,37 +27,37 @@
 			"-KkHUtKjHpTkt0PKiPSD" : "http://www.filmaffinity.com/es/allfilms_B_3.html",
 			"-KkHUtKkI10Gtuyy4GpC" : "http://www.filmaffinity.com/es/allfilms_B_4.html",
 			...*/
-		/*fa.createUrlList(function(character,completeUrl){
-			fb.addUrlList(character,completeUrl);
-		}, function(err){
+		/*fa.createUrlList(function (character, completeUrl) {
+			fb.addUrlList(character, completeUrl);
+		}, function (err) {
 			console.error(err);
 		});*/
 
 		/* Este método se usa pra obtener las urls de cada una de las películas */
-		/*fb.getMainUrls(function(data){
+		/*fb.getMainUrls(function (data) {
 			var _allUrls = [];
 			//Esto se hace para desarrollo; si sólo buscamos una letra
 			//no vamos a tener una colección dentro de una colección ( x : {},y: {}...)
-			if (Object.keys(data.val())[0].length > 3){
+			if (Object.keys(data.val())[0].length > 3) {
 				//Si es mayor que uno, es que viene un key de firebase
 				//y no el array de letras ( o de "0-9" )
 				var _list = data.val();
 				for (var key in _list) {
 					if (_list.hasOwnProperty(key)) {
 						var element = _list[key];
-						if ( element.retrieved === 0 ){
+						if (element.retrieved === 0) {
 							_allUrls.push(element.url);
 						}
 						_allUrls.push(element);
 					}
 				}
-			}else{
-				data.forEach(function(childSnapshot) {
+			} else {
+				data.forEach(function (childSnapshot) {
 					var _list = childSnapshot.val();
 					for (var key in _list) {
 						if (_list.hasOwnProperty(key)) {
 							var element = _list[key];
-							if ( element.retrieved === 0 ){
+							if (element.retrieved === 0) {
 								_allUrls.push({
 									'url': element.url,
 									'key': childSnapshot.key
@@ -65,17 +68,17 @@
 				});
 			}
 
-			fa.getAllFilmIds(_allUrls, function(idFilm){
+			fa.getAllFilmIds(_allUrls, function (idFilm) {
 				fb.addFilmId(idFilm);
-			}, function(err){
+			}, function (err) {
 				console.error(err);
-			}, function(urlMain){
+			}, function (urlMain) {
 				fb.setRetrievedPage(urlMain);
 			});
-		}, function(err){
+		}, function (err) {
 			console.error(err);
 		});*/
-		/*113485-111953*/
+
 
 		/*fb.getAllUrls(function(data){
 			console.log('Hemos obtenido los datos - ' + moment().format('L LTS'));
@@ -102,8 +105,22 @@
 		}, function(err){
 			console.error(err);
 		});*/
+
+
+		/*giSearch.search('La guerra de las galaxias. Episodio I: La amenaza fantasma', 528069);*/
 	}
 
 	var fb = require('./modules/firebaseCtrl.js')(firebaseConfig, config, fnIsLogged);
 
 })();
+
+
+/*{
+    "id": "filmapp-169515",
+    "apiKey": "AIzaSyAKaPMccUnS7ukghedwwUTxZf23B1AU-08"
+}
+
+{
+    "id": "014410061232805202604:bnyoo5b-rze",
+    "apiKey": "AIzaSyALOoVxA1H4CyMFJtoLW2wiqN0FS0FoH1I"
+}*/

@@ -11,6 +11,7 @@
     "firebase": "4.0.0",
     "firebase-admin": "4.0.1",
     "fs": "0.0.2",
+    "google-images": "^2.1.0",
     "moment": "2.10.6",
     "request": "2.61.0",
     "whacko": "^0.19.1"

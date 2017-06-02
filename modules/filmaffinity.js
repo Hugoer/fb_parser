@@ -1,6 +1,6 @@
-(function(){
+(function () {
     'use strict';
-    module.exports = function(config){
+    module.exports = function (config) {
 
         var _filmaffinity = {};
 
@@ -14,38 +14,38 @@
             'http://www.filmaffinity.com/es/allfilms_0-9_3.html'
             ....
         */
-        function getPagination(url,callback, failure){
+        function getPagination(url, callback, failure) {
             console.log('LLamamos a filmaffinity: ' + url);
             var c = new Crawler();
             c.queue({
-                uri       : url,
-                maxConnections : config.maxConnections,
-                userAgent : config.userAgent,
-                skipDuplicates : true,
-                jQuery    : true,
-                forceUTF8 : true,
-                callback  : function (error, result, done) {
-                    if ( !!error ){
+                uri: url,
+                maxConnections: config.maxConnections,
+                userAgent: config.userAgent,
+                skipDuplicates: true,
+                jQuery: true,
+                forceUTF8: true,
+                callback: function (error, result, done) {
+                    if (!!error) {
                         failure(error);
-                    }else{
+                    } else {
                         var $ = result.$;
-                        if ( !!$('.pager') ){
+                        if (!!$('.pager')) {
 
                             var maxPaginationNumber = +$($('.pager')[0]).find('a').eq(-2).text(),
-                                character = $($('td > b')[0]).text().replace('[','').replace(']','');
+                                character = $($('td > b')[0]).text().replace('[', '').replace(']', '');
 
                             for (var index = 0; index < maxPaginationNumber; index++) {
                                 var completeUrl = config.urlMain + character + '_' + (index + 1) + '.html';
-                                callback(character,completeUrl);
+                                callback(character, completeUrl);
                             }
                         }
 
-                        setTimeout(function(){
+                        setTimeout(function () {
                             _allUrls.shift();
                             console.log('Vamos a llamar de nuevo para continuar con la siguiente letra ');
-                            if ( !!_allUrls[0] ){
+                            if (!!_allUrls[0]) {
                                 getPagination(_allUrls[0], callback, failure);
-                            }else{
+                            } else {
                                 console.log('Proceso getPagination finalizado');
                             }
                         }, config.timeout);
@@ -55,59 +55,61 @@
             });
         }
 
-        _filmaffinity.createUrlList = function(callback, failure){
+        _filmaffinity.createUrlList = function (callback, failure) {
             _allUrls = [];
             var urlIndexGeneral = config.filmsPagination.split('@');
             var urlHtml = '';
 
             for (var i = 0; i < urlIndexGeneral.length; i++) {
-                if (!!urlIndexGeneral[i]){
+                if (!!urlIndexGeneral[i]) {
                     urlHtml = config.urlMain + urlIndexGeneral[i] + '_1.html';
                     console.log('urlIndexGeneral - ' + urlHtml);
                     _allUrls.push(urlHtml);
                 }
             }
-            callback = callback || function(){};
-            getPagination(_allUrls[0],callback, failure);
+            callback = callback || function () { };
+            getPagination(_allUrls[0], callback, failure);
         };
         /* FIN - Coger urls principales */
 
-        function getFilmId(url,callback, failure, setRetrievedPage){
+        function getFilmId(url, callback, failure, setRetrievedPage) {
             var c = new Crawler();
             c.queue({
-                uri       : url.url,
-                maxConnections : config.maxConnections,
-                userAgent : config.userAgent,
-                skipDuplicates : true,
-                jQuery    : true,
-                forceUTF8 : true,
-                callback  : function (error, result, done) {
-                    if ( !!error ){
+                uri: url.url,
+                maxConnections: config.maxConnections,
+                userAgent: config.userAgent,
+                skipDuplicates: true,
+                jQuery: true,
+                forceUTF8: true,
+                callback: function (error, result, done) {
+                    if (!!error) {
                         failure(error);
-                    }else{
+                    } else {
                         var $ = result.$;
 
                         var _titles = $('.mc-title > a');
-                        if ( _titles.length > 0 ){
+                        if (_titles.length > 0) {
                             for (var index = 0; index < _titles.length; index++) {
-                                var element = +$(_titles[index]).attr('href').replace('/es/film','').replace('.html','');
+                                var element = +$(_titles[index]).attr('href').replace('/es/film', '').replace('.html', '');
                                 console.log(element);
                                 callback(element);
                             }
-                            setTimeout(function(){
+                            setTimeout(function () {
                                 /*Sólo actualizar si no aparece la web que diga que no eres un Bot*/
                                 setRetrievedPage(_allUrls[0]);
                                 _allUrls.shift();
                                 console.log('Obtener IDS - Vamos a llamar de nuevo para continuar con la siguiente página');
-                                if ( !!_allUrls[0] ){
-                                    getFilmId(_allUrls[0], callback, failure,setRetrievedPage);
-                                }else{
+                                if (!!_allUrls[0]) {
+                                    getFilmId(_allUrls[0], callback, failure, setRetrievedPage);
+                                } else {
                                     console.log('Proceso getFilmId finalizado ');
                                 }
                             }, config.timeout);
-                        }else{
+                        } else {
                             console.log('No se ha encontrado ningún título. Eres un bot?¿ o ha terminado ya el proceso? Consulta http://www.filmaffinity.com ');
-                            process.exit();
+                            setTimeout(function () {
+                                process.exit();
+                            }, 4000);
                         }
 
                     }
@@ -116,7 +118,7 @@
             });
         }
         /*Obtener todos los ids de las películas */
-        _filmaffinity.getAllFilmIds = function(allMailUrls, callback, failure, setRetrievedPage){
+        _filmaffinity.getAllFilmIds = function (allMailUrls, callback, failure, setRetrievedPage) {
             _allUrls = allMailUrls;
             getFilmId(_allUrls[0], callback, failure, setRetrievedPage);
         };
@@ -124,19 +126,19 @@
         /* FIN - ids películas */
 
         /* Cogemos la información de la película */
-        function getInfo(movie,callback,failure){
+        function getInfo(movie, callback, failure) {
             var c = new Crawler();
             c.queue({
-                uri       : movie.url,
-                maxConnections : config.maxConnections,
-                userAgent : config.userAgent,
-                skipDuplicates : true,
-                jQuery    : true,
-                forceUTF8 : true,
-                callback  : function (error, result, done) {
-                    if ( !!error ){
+                uri: movie.url,
+                maxConnections: config.maxConnections,
+                userAgent: config.userAgent,
+                skipDuplicates: true,
+                jQuery: true,
+                forceUTF8: true,
+                callback: function (error, result, done) {
+                    if (!!error) {
                         failure(error);
-                    }else{
+                    } else {
                         //Resultado
                         var $ = result.$;
 
@@ -168,12 +170,12 @@
 
                         movieWebSite = $('.web-url').find('a').text();
 
-                        if ( !!movieWebSite ){
+                        if (!!movieWebSite) {
                             _movie.web = movieWebSite;
                         }
 
-                        var _rating = $('#movie-rat-avg').text().trim().replace(',','.');
-                        if ( !!_rating ){
+                        var _rating = $('#movie-rat-avg').text().trim().replace(',', '.');
+                        if (!!_rating) {
                             _movie.rating = +_rating;
                             _movie.ratingCount = +$('#movie-count-rat span').text();
                             //Esto se hace para hacer las búsquedas más eficientes en firebase
@@ -190,48 +192,48 @@
                         $awards = $('.award').find('.margin-bottom');
 
                         for (i = 0; i < $actors.length; i++) {
-                            _movie.actorsList.push( $($actors[i]).text().trim() );
+                            _movie.actorsList.push($($actors[i]).text().trim());
                         }
 
                         for (i = 0; i < $genres.length; i++) {
-                            _movie.genresList.push( $($genres[i]).text().trim() );
+                            _movie.genresList.push($($genres[i]).text().trim());
                         }
 
                         for (i = 0; i < $topics.length; i++) {
-                            _movie.topicsList.push( $($topics[i]).text().trim() );
+                            _movie.topicsList.push($($topics[i]).text().trim());
                         }
 
                         for (i = 0; i < $awards.length; i++) {
                             _award = $($awards[i]).text().trim();
-                            if ( !!_award ){
+                            if (!!_award) {
                                 _movie.awards.push(_award);
                             }
                         }
 
-                        if (!!_movie.title || _movie.id === 0){
-                            if (_movie.id !== 0){
-                                console.log('Guardamos la película: ' +_movie.originalTitle + ' - ' + movie.idFirebase + ' - ' + movie.id);
+                        if (!!_movie.title || _movie.id === 0) {
+                            if (_movie.id !== 0) {
+                                console.log('Guardamos la película: ' + _movie.originalTitle + ' - ' + movie.idFirebase + ' - ' + movie.id);
                                 callback(_movie);
                             }
 
-                            setTimeout(function(){
+                            setTimeout(function () {
                                 _allUrls.shift();
-                                if ( !!_allUrls[0] ){
+                                if (!!_allUrls[0]) {
                                     getInfo(_allUrls[0], callback, failure);
-                                }else{
+                                } else {
                                     console.log('Proceso getInfo finalizado');
                                 }
                             }, config.timeout);
-                        }else{
+                        } else {
                             console.log(_movie);
-                            var moment   		= require('moment');
+                            var moment = require('moment');
                             console.log(moment().format('L LTS'));
                             console.log('No se ha encontrado ningún título. Eres un bot?¿ o ha terminado ya el proceso? Consulta http://www.filmaffinity.com ');
                             /*process.exit();*/
-                            setTimeout(function(){
-                                if ( !!_allUrls[0] ){
+                            setTimeout(function () {
+                                if (!!_allUrls[0]) {
                                     getInfo(_allUrls[0], callback, failure);
-                                }else{
+                                } else {
                                     console.log('Proceso getInfo finalizado');
                                 }
                             }, 108000000);
@@ -244,7 +246,7 @@
             });
         }
 
-        _filmaffinity.getFilmInfo = function(allUrlMovies, callback, failure){
+        _filmaffinity.getFilmInfo = function (allUrlMovies, callback, failure) {
             _allUrls = allUrlMovies;
             getInfo(_allUrls[0], callback, failure);
         };

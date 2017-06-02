@@ -1,6 +1,6 @@
-(function(){
+(function () {
     'use strict';
-    /** Dar de alta películas nuevas que estén en config.urlNewMovie y no estén en filmListId
+    /** Dar de alta películas nuevas que estén en config.urlNewMovie y no estén en listId
     * Escuchar un nodo de firebase para autogenerar películas nuevas; por si yo manualmente las creo a mano por cualquier motivo.
     * Insertar películas nuevas en netflix, netflix próximamente, hbo, estrenos DVD,vídeo bajo demanda (Filmin + movistar ) películas en cartelera ( Eliminarla cuando ya no esté )
         * Insertar el id de la película en un nodo de firebase, que desde firebase functions estaremos escuchando para enviar una push a los usuarios que tengan configurado
