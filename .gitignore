@@ -2,3 +2,9 @@ node_modules/
 firebaseConfig\.json
 
 googleApi\.json
+
+\.vscode/launch\.json
+
+firebaseFunctions/\.firebaserc
+
+firebaseFunctions/firebase\.json

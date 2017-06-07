@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     module.exports = function (credentials, config, executeWhenLogged) {
-
+        var moment = require('moment');
         var fb = require('firebase');
         fb.initializeApp(credentials.config);
 
@@ -98,13 +98,41 @@
             });
         };
 
-        _firebase.getOldMoviesNode = function () {
-            fb.database().ref('movies').once('value', function (film) {
-                film.forEach(function (movie) {
-                    var _movie = movie.val();
+        function copyFilm(movie) {
+            var _movie = movie.movie,
+                _key = movie.key;
 
+            console.log('Moviendo película: ' + _movie.title + ' con el id: ' + _movie.id + ' - ' + arrayMovies.length);
+            fb.database().ref('moviesList').child(_movie.id).set(_movie)
+                .then(function () {
+                    setTimeout(function () {
+                        fb.database().ref('movies').child(_key).remove();
+                        arrayMovies.shift();
+                        if (!!arrayMovies[0]) {
+                            copyFilm(arrayMovies[0]);
+                        } else {
+                            console.log('Finished!!');
+                        }
 
+                    }, 100);
                 });
+        }
+
+        var arrayMovies = [];
+
+        _firebase.getOldMoviesNode = function () {
+            console.log('Pedimos todos los datos - ' + moment().format('L LTS'));
+            fb.database().ref('movies').limitToFirst(3000).once('value', function (film) {
+                console.log('Quedan por copiar: ' + Object.keys(film.val()).length);
+                for (var key in film.val()) {
+                    arrayMovies.push({
+                        'movie': film.val()[key],
+                        'key': key
+                    });
+                }
+                copyFilm(arrayMovies[0]);
+            }, function (err) {
+                console.error(err);
             });
         };
 

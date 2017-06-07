@@ -108,6 +108,7 @@
 
 
 		/*giSearch.search('La guerra de las galaxias. Episodio I: La amenaza fantasma', 528069);*/
+		fb.getOldMoviesNode();
 	}
 
 	var fb = require('./modules/firebaseCtrl.js')(firebaseConfig, config, fnIsLogged);
